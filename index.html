@@ -32,38 +32,38 @@
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/FileSaver.js/2.0.5/FileSaver.min.js"></script>
 <script>
-// [serienr, model, kleur, slug op cutlerandgross.com]
+// [serienr, model, kleur, [slugs op cutlerandgross.com — meerdere varianten]]
 const monturen = [
-  ["20094","9001","HONEY",       "9001-optical-square-glasses"],
-  ["20100","9101","GRANNY",      "9101-optical-square-glasses"],
-  ["20101","1397","GRANNY",      "1397-optical-square-glasses"],
-  ["20104","0822V2","GROUND",    "0822v2-optical-rectangle-glasses"],
-  ["20462","1304","07",          "1304-optical-round-glasses"],
-  ["20464","9347","01",          "9347-optical-square-glasses"],
-  ["20680","1394","04",          "1394-optical-square-glasses"],
-  ["20740","1416","01",          "1416-optical-square-glasses"],
-  ["21167","0008","01",          "0008-optical-square-glasses"],
-  ["21169","9261","01",          "9261-optical-square-glasses"],
-  ["21170","9298","01",          "9298-optical-square-glasses"],
-  ["21171","9347","01",          "9347-optical-square-glasses"],
-  ["21178","9891","02",          "9891-sunglasses"],
-  ["21180","9891","01",          "9891-sunglasses"],
-  ["21293","0008","03",          "0008-optical-square-glasses"],
-  ["21349","9378","01",          "9378-optical-square-glasses"],
-  ["21374","0002","04",          "0002-optical-square-glasses"],
-  ["21414","018","01",           "018-optical-rectangle-glasses"],
-  ["21686","016","01",           "016-optical-rectangle-glasses"],
-  ["21687","0009","01",          "0009-optical-square-glasses"],
-  ["21809","1431","02",          "1431-optical-square-glasses"],
-  ["21811","1430","02",          "1430-optical-square-glasses"],
-  ["21813","1428","03",          "1428-optical-square-glasses"],
-  ["21815","1428","02",          "1428-optical-square-glasses"],
-  ["21819","1426","01",          "1426-optical-square-glasses"],
-  ["21820","1426","03",          "1426-optical-square-glasses"],
-  ["21874","1431","03",          "1431-optical-square-glasses"],
-  ["21900","1426","01",          "1426-optical-square-glasses"],
-  ["21924","Of25-223","230",     "of25-223-optical-glasses"],
-  ["21933","Cranley","SilverGold","cranley-optical-glasses"],
+  ["20094","9001","HONEY",       ["9001-optical-square-glasses","9001-square-optical-glasses","9001-optical-glasses"]],
+  ["20100","9101","GRANNY",      ["9101-optical-square-glasses","9101-square-optical-glasses"]],
+  ["20101","1397","GRANNY",      ["1397-optical-square-glasses","1397-square-optical-glasses"]],
+  ["20104","0822V2","GROUND",    ["0822v2-optical-aviator-glasses","0822-optical-aviator-glasses","0822v2-aviator-optical-glasses"]],
+  ["20462","1304","07",          ["1304-optical-round-glasses","1304-round-optical-glasses"]],
+  ["20464","9347","01",          ["9347-square-optical-glasses","9347-optical-square-glasses"]],
+  ["20680","1394","04",          ["1394-optical-aviator-glasses","1394-aviator-optical-glasses"]],
+  ["20740","1416","01",          ["1416-optical-round-glasses","1416-round-optical-glasses"]],
+  ["21167","0008","01",          ["0008-round-optical-glasses","0008-optical-round-glasses"]],
+  ["21169","9261","01",          ["9261-cat-eye-optical-glasses","9261-optical-cat-eye-glasses"]],
+  ["21170","9298","01",          ["9298-square-optical-glasses","9298-optical-square-glasses","9298-optical-glasses"]],
+  ["21171","9347","01",          ["9347-square-optical-glasses","9347-optical-square-glasses"]],
+  ["21178","9891","02",          ["9891-rectangle-sunglasses","9891-sunglasses"]],
+  ["21180","9891","01",          ["9891-rectangle-sunglasses","9891-sunglasses"]],
+  ["21293","0008","03",          ["0008-round-optical-glasses","0008-optical-round-glasses"]],
+  ["21349","9378","01",          ["9378-round-optical-glasses","9378-optical-round-glasses"]],
+  ["21374","0002","04",          ["0002-aviator-optical-glasses","0002-optical-aviator-glasses"]],
+  ["21414","018","01",           ["the-great-frog-jagger-rectangle-optical-glasses","great-frog-018-optical-glasses","018-optical-rectangle-glasses","great-frog-jagger-optical-glasses"]],
+  ["21686","016","01",           ["the-great-frog-bowie-rectangle-optical-glasses","great-frog-016-optical-glasses","016-optical-rectangle-glasses","great-frog-bowie-optical-glasses"]],
+  ["21687","0009","01",          ["0009-round-optical-glasses","0009-optical-round-glasses"]],
+  ["21809","1431","02",          ["lansdowne-1431-titanium-optical-glasses","1431-titanium-optical-glasses","1431-optical-glasses"]],
+  ["21811","1430","02",          ["pelham-1430-titanium-optical-glasses","1430-titanium-optical-glasses","1430-optical-glasses"]],
+  ["21813","1428","03",          ["lennox-1428-titanium-optical-glasses","1428-titanium-optical-glasses","1428-optical-glasses"]],
+  ["21815","1428","02",          ["lennox-1428-titanium-optical-glasses","1428-titanium-optical-glasses","1428-optical-glasses"]],
+  ["21819","1426","01",          ["draycott-1426-titanium-optical-glasses","1426-titanium-optical-glasses","1426-optical-glasses"]],
+  ["21820","1426","03",          ["draycott-1426-titanium-optical-glasses","1426-titanium-optical-glasses","1426-optical-glasses"]],
+  ["21874","1431","03",          ["lansdowne-1431-titanium-optical-glasses","1431-titanium-optical-glasses","1431-optical-glasses"]],
+  ["21900","1426","01",          ["draycott-1426-titanium-optical-glasses","1426-titanium-optical-glasses","1426-optical-glasses"]],
+  ["21924","Of25-223","230",     ["of25-223-optical-glasses","223-optical-glasses","of25-optical-glasses"]],
+  ["21933","Cranley","SilverGold",["cranley-1425-titanium-optical-glasses","cranley-titanium-optical-glasses","cranley-optical-glasses","cranley-1425-optical-glasses"]],
 ];
 
 async function haalFoto(slug) {
@@ -74,7 +74,7 @@ async function haalFoto(slug) {
   const imgs = data.product?.images;
   if (!imgs || !imgs.length) throw new Error("geen foto");
   const ir = await fetch(imgs[0].src);
-  if (!ir.ok) throw new Error("foto mislukt");
+  if (!ir.ok) throw new Error("foto download mislukt");
   return await ir.blob();
 }
 
@@ -92,23 +92,23 @@ async function start() {
   const cache = {};
 
   for (let i = 0; i < monturen.length; i++) {
-    const [serie, model, kleur, slug] = monturen[i];
+    const [serie, model, kleur, slugs] = monturen[i];
     const bestandsnaam = `${serie}_CutlerAndGross_${model}_${kleur}.jpg`;
     balk.style.width = Math.round(((i+1)/monturen.length)*100) + "%";
-    status.textContent = `Bezig: ${i+1} van ${monturen.length} — ${model}`;
+    status.textContent = `Bezig: ${i+1} van ${monturen.length} — ${model} ${kleur}`;
 
-    let blob = cache[slug] || null;
+    // Cache op basis van eerste slug (modellen met zelfde slug krijgen zelfde foto)
+    const cacheKey = slugs[0];
+    let blob = cache[cacheKey] || null;
+
     if (!blob) {
-      try {
-        blob = await haalFoto(slug);
-        cache[slug] = blob;
-      } catch(e) {
-        // probeer zonder suffix
-        const kortSlug = slug.replace(/-optical-square-glasses|-optical-rectangle-glasses|-optical-round-glasses|-sunglasses|-optical-glasses/g, "");
+      for (const slug of slugs) {
         try {
-          blob = await haalFoto(kortSlug + "-optical-glasses");
-          cache[slug] = blob;
-        } catch(e2) {}
+          blob = await haalFoto(slug);
+          cache[cacheKey] = blob;
+          break;
+        } catch(e) {}
+        await new Promise(r => setTimeout(r, 200));
       }
     }
 
