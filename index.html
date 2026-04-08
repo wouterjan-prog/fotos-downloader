@@ -1,0 +1,135 @@
+<!DOCTYPE html>
+<html lang="nl">
+<head>
+<meta charset="UTF-8">
+<title>Boschman Optiek – Cutler and Gross foto's</title>
+<style>
+  body { font-family: sans-serif; max-width: 720px; margin: 60px auto; padding: 0 24px; background: #f5f5f5; }
+  h1 { font-size: 20px; font-weight: 700; margin-bottom: 4px; }
+  p { font-size: 14px; color: #555; line-height: 1.6; }
+  .box { background: white; border-radius: 12px; padding: 28px; border: 1px solid #e0e0e0; margin: 24px 0; }
+  button { background: #1a1a1a; color: white; border: none; padding: 14px 32px; border-radius: 8px; font-size: 15px; cursor: pointer; width: 100%; margin-top: 8px; }
+  button:hover { background: #333; }
+  button:disabled { background: #aaa; cursor: not-allowed; }
+  .balk-wrap { background: #eee; border-radius: 6px; height: 10px; margin: 14px 0 6px; overflow: hidden; display: none; }
+  .balk { height: 100%; width: 0%; background: #1a1a1a; border-radius: 6px; transition: width 0.3s; }
+  #status { font-size: 13px; color: #555; min-height: 20px; margin-top: 6px; }
+  #log { font-size: 11px; color: #999; margin-top: 8px; max-height: 220px; overflow-y: auto; line-height: 1.7; }
+  .check { color: #2e7d32; } .cross { color: #c62828; }
+</style>
+</head>
+<body>
+<h1>Boschman Optiek — Cutler and Gross foto's</h1>
+<p>Klik op de knop. Foto's worden opgehaald via cutlerandgross.com en verpakt als ZIP.</p>
+<div class="box">
+  <p style="margin:0 0 4px;font-weight:600;">30 monturen — Cutler and Gross</p>
+  <p style="margin:0 0 14px;color:#888;font-size:13px;">Bestandsnaam: serienr_CutlerAndGross_model_kleur.jpg</p>
+  <button id="btn" onclick="start()">ZIP downloaden</button>
+  <div class="balk-wrap" id="balkWrap"><div class="balk" id="balk"></div></div>
+  <div id="status"></div>
+  <div id="log"></div>
+</div>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/FileSaver.js/2.0.5/FileSaver.min.js"></script>
+<script>
+// [serienr, model, kleur, slug op cutlerandgross.com]
+const monturen = [
+  ["20094","9001","HONEY",       "9001-optical-square-glasses"],
+  ["20100","9101","GRANNY",      "9101-optical-square-glasses"],
+  ["20101","1397","GRANNY",      "1397-optical-square-glasses"],
+  ["20104","0822V2","GROUND",    "0822v2-optical-rectangle-glasses"],
+  ["20462","1304","07",          "1304-optical-round-glasses"],
+  ["20464","9347","01",          "9347-optical-square-glasses"],
+  ["20680","1394","04",          "1394-optical-square-glasses"],
+  ["20740","1416","01",          "1416-optical-square-glasses"],
+  ["21167","0008","01",          "0008-optical-square-glasses"],
+  ["21169","9261","01",          "9261-optical-square-glasses"],
+  ["21170","9298","01",          "9298-optical-square-glasses"],
+  ["21171","9347","01",          "9347-optical-square-glasses"],
+  ["21178","9891","02",          "9891-sunglasses"],
+  ["21180","9891","01",          "9891-sunglasses"],
+  ["21293","0008","03",          "0008-optical-square-glasses"],
+  ["21349","9378","01",          "9378-optical-square-glasses"],
+  ["21374","0002","04",          "0002-optical-square-glasses"],
+  ["21414","018","01",           "018-optical-rectangle-glasses"],
+  ["21686","016","01",           "016-optical-rectangle-glasses"],
+  ["21687","0009","01",          "0009-optical-square-glasses"],
+  ["21809","1431","02",          "1431-optical-square-glasses"],
+  ["21811","1430","02",          "1430-optical-square-glasses"],
+  ["21813","1428","03",          "1428-optical-square-glasses"],
+  ["21815","1428","02",          "1428-optical-square-glasses"],
+  ["21819","1426","01",          "1426-optical-square-glasses"],
+  ["21820","1426","03",          "1426-optical-square-glasses"],
+  ["21874","1431","03",          "1431-optical-square-glasses"],
+  ["21900","1426","01",          "1426-optical-square-glasses"],
+  ["21924","Of25-223","230",     "of25-223-optical-glasses"],
+  ["21933","Cranley","SilverGold","cranley-optical-glasses"],
+];
+
+async function haalFoto(slug) {
+  const url = `https://www.cutlerandgross.com/products/${slug}.json`;
+  const r = await fetch(url);
+  if (!r.ok) throw new Error("HTTP " + r.status);
+  const data = await r.json();
+  const imgs = data.product?.images;
+  if (!imgs || !imgs.length) throw new Error("geen foto");
+  const ir = await fetch(imgs[0].src);
+  if (!ir.ok) throw new Error("foto mislukt");
+  return await ir.blob();
+}
+
+async function start() {
+  const btn = document.getElementById("btn");
+  const status = document.getElementById("status");
+  const log = document.getElementById("log");
+  const balk = document.getElementById("balk");
+  const balkWrap = document.getElementById("balkWrap");
+  btn.disabled = true;
+  balkWrap.style.display = "block";
+  log.innerHTML = "";
+  const zip = new JSZip();
+  let gelukt = 0, mislukt = 0;
+  const cache = {};
+
+  for (let i = 0; i < monturen.length; i++) {
+    const [serie, model, kleur, slug] = monturen[i];
+    const bestandsnaam = `${serie}_CutlerAndGross_${model}_${kleur}.jpg`;
+    balk.style.width = Math.round(((i+1)/monturen.length)*100) + "%";
+    status.textContent = `Bezig: ${i+1} van ${monturen.length} — ${model}`;
+
+    let blob = cache[slug] || null;
+    if (!blob) {
+      try {
+        blob = await haalFoto(slug);
+        cache[slug] = blob;
+      } catch(e) {
+        // probeer zonder suffix
+        const kortSlug = slug.replace(/-optical-square-glasses|-optical-rectangle-glasses|-optical-round-glasses|-sunglasses|-optical-glasses/g, "");
+        try {
+          blob = await haalFoto(kortSlug + "-optical-glasses");
+          cache[slug] = blob;
+        } catch(e2) {}
+      }
+    }
+
+    if (blob) {
+      zip.file(bestandsnaam, blob);
+      gelukt++;
+      log.innerHTML += `<span class="check">✓ ${bestandsnaam}</span><br>`;
+    } else {
+      mislukt++;
+      log.innerHTML += `<span class="cross">✗ ${serie} ${model} ${kleur} — niet gevonden</span><br>`;
+    }
+    log.scrollTop = log.scrollHeight;
+    await new Promise(r => setTimeout(r, 300));
+  }
+
+  status.textContent = "ZIP wordt aangemaakt...";
+  saveAs(await zip.generateAsync({type:"blob"}), "Boschman_Optiek_CutlerAndGross.zip");
+  status.textContent = `Klaar! ${gelukt} foto's gedownload, ${mislukt} niet gevonden.`;
+  btn.disabled = false;
+  btn.textContent = "Opnieuw downloaden";
+}
+</script>
+</body>
+</html>
